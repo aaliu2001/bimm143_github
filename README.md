@@ -15,6 +15,6 @@ My classwork and mini projects from [BIMM 143](https://bioboot.github.io/bimm143
 - Class 15: n/a
 - Class 16: [Analyzing Sequencing Data in the Cloud](https://github.com/aaliu2001/bimm143_github/blob/main/class16/class16ec.md)
 - Class 17: [Vaccination Rate Mini Project](https://github.com/aaliu2001/bimm143_github/blob/main/class17/class17.md)
-- Class 18: [Mutational Signatures of Cancer Mini Project]()
-- Class 19: [Investigating Pertussis Resurgence Mini Project]()
+- Class 18: Mutational Signatures of Cancer Mini Project (project link n/a)
+- Class 19: [Investigating Pertussis Resurgence Mini Project](https://github.com/aaliu2001/bimm143_github/blob/main/class19/class19.md)
 
