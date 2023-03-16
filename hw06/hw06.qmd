@@ -1,0 +1,218 @@
+---
+title: "HW 6, Functions"
+author: "Angela Liu"
+format: gfm
+---
+
+## Section 1
+>A. Improve this regular R code by abstracting the main activities in your own new function. Note, we will go through this example together in the formal lecture. The main steps should entail running through the code to see if it works, simplifying to a core working code snippet, reducing any calculation duplication, and finally transferring your new streamlined code into a more useful function for you.
+
+```{r}
+# (A. Can you improve this analysis code?
+df <- data.frame(a=1:10, b=seq(200,400,length=10),c=11:20,d=NA)
+df$a <- (df$a - min(df$a)) / (max(df$a) - min(df$a))
+df$b <- (df$b - min(df$a)) / (max(df$b) - min(df$b))
+df$c <- (df$c - min(df$c)) / (max(df$c) - min(df$c))
+df$d <- (df$d - min(df$d)) / (max(df$a) - min(df$d))
+df
+```
+
+Let's see the outputs of these calculations with df. 
+```{r}
+df
+```
+
+
+This function subtracts each column element from the minimum value in the table and divides it by the range of the column (max-min).
+```{r}
+analysis <- function(x) {
+  #subtracting the input element from the column min and dividing it by the column range
+  x - min(x) / (max(x) - min(x))
+}
+analysis(df$b)
+```
+
+Let's check using the `apply` function:
+```{r}
+results <- apply(df, 2, analysis)
+results
+```
+
+## Part B
+```{r}
+#install.packages("bio3d")
+```
+
+```{r}
+# Can you improve this analysis code?
+library(bio3d)
+s1 <- read.pdb("4AKE") # kinase with drug
+s2 <- read.pdb("1AKE") # kinase no drug
+s3 <- read.pdb("1E4Y") # kinase with drug
+
+s1.chainA <- trim.pdb(s1, chain="A", elety="CA")
+s2.chainA <- trim.pdb(s2, chain="A", elety="CA")
+s3.chainA <- trim.pdb(s1, chain="A", elety="CA")
+
+s1.b <- s1.chainA$atom$b
+s2.b <- s2.chainA$atom$b
+s3.b <- s3.chainA$atom$b
+
+plotb3(s1.b, sse=s1.chainA, typ="l", ylab="Bfactor")
+plotb3(s2.b, sse=s2.chainA, typ="l", ylab="Bfactor")
+plotb3(s3.b, sse=s3.chainA, typ="l", ylab="Bfactor")
+```
+
+
+>Q1. What type of object is returned from the read.pdb() function?
+
+The `read.pdb()` returns a PDB file.
+```{r}
+s1 <- read.pdb("4AKE") # kinase with drug
+s1
+```
+
+>Q2. What does the trim.pdb() function do?
+
+The `trim.pdb()` function narrows down the information from the PDB by looking at more specific chains and decreases the amount of residues being looked at.
+```{r}
+s1.chainA <- trim.pdb(s1, chain="A", elety="CA")
+s1.chainA
+```
+
+
+>Q3. What input parameter would turn off the marginal black and grey rectangles in the plots and what do they represent in this case?
+
+Deleting the `sse` parameter would turn off the marginal rectangles. The `sse` parameter represents the secondary structure element.
+```{r}
+plotb3(s1.b, sse=s1.chainA, typ="l", ylab="Bfactor")
+
+#the same line of code, without sse
+plotb3(s1.b, typ="l", ylab="Bfactor")
+```
+
+
+>Q4. What would be a better plot to compare across the different proteins?
+
+The plot with the `sse` element would be a better plot to compare across different proteins as it contains more information to compare.
+```{r}
+plotb3(s1.b, sse=s1.chainA, typ="l", ylab="Bfactor")
+plotb3(s2.b, sse=s2.chainA, typ="l", ylab="Bfactor")
+```
+
+```{r}
+plotb3(s1.b, sse=s1.chainA, typ="l", ylab="Bfactor")
+plotb3(s2.b, sse=s2.chainA, typ="l", ylab="Bfactor")
+```
+
+
+>Q5. Which proteins are more similar to each other in their B-factor trends? How could you quantify this? HINT: try the rbind(), dist() and hclust() functions together with a resulting dendrogram plot. Look up the documentation to see what each of these functions does.
+
+s1.b and s3.b are more similar as they are closer together on the plot.
+```{r}
+hc <- hclust( dist( rbind(s1.b, s2.b, s3.b) ) )
+plot(hc)
+```
+
+## Homework #6
+
+>Q6. How would you generalize the original code above to work with any set of input protein structures?
+
+original code:
+```{r}
+#install.packages("bio3d")
+```
+
+```{r}
+# Can you improve this analysis code?
+library(bio3d)
+s1 <- read.pdb("4AKE") # kinase with drug
+s2 <- read.pdb("1AKE") # kinase no drug
+s3 <- read.pdb("1E4Y") # kinase with drug
+
+s1.chainA <- trim.pdb(s1, chain="A", elety="CA")
+s2.chainA <- trim.pdb(s2, chain="A", elety="CA")
+s3.chainA <- trim.pdb(s1, chain="A", elety="CA")
+
+s1.b <- s1.chainA$atom$b
+s2.b <- s2.chainA$atom$b
+s3.b <- s3.chainA$atom$b
+
+plotb3(s1.b, sse=s1.chainA, typ="l", ylab="Bfactor")
+plotb3(s2.b, sse=s2.chainA, typ="l", ylab="Bfactor")
+plotb3(s3.b, sse=s3.chainA, typ="l", ylab="Bfactor")
+```
+
+
+Let's see what s1 outputs. It seems to be a pdb file.
+```{r}
+s1
+```
+
+To make a function that returns the pdb file:
+```{r}
+#to output the pdb file for protein of interest
+pdbFile <- function(x) {
+  #let x be the protein (or in this example, kinase) of interest
+  read.pdb(x)
+}
+
+#to check
+pdbFile("4AKE")
+```
+
+
+Onto the next part of making a function for `trim.pdb`
+```{r}
+s1.chainA
+```
+This code outputs a pdb file using narrowed down residues and/or structures.
+
+```{r}
+#function to output pdb using trimmed residues
+pdbTrim <- function(x, y, z) {
+  #let 'x' be the protein of interest, 'y' be the chain, 'z' be the elety
+  trim.pdb(x, chain = y, elety = z)
+}
+
+#To test if the function works
+pdbTrim(s1, "A", "CA")
+pdbTrim(s2, "A", "CA")
+```
+
+As for `s1.b`, `s2.b` and `s3.b`, let's make other function.
+```{r}
+#to see the output
+s1.b
+```
+```{r}
+#function to provide the atomic information
+atomResult <- function(x) {
+  #let x be the protein chain of interest
+  x$atom$b
+}
+
+atomResult(s1.chainA)
+```
+This function `atomResult` prints out the atomic information from the pdb file.
+
+
+Now for last part:
+```{r}
+plotb3(s1.b, sse=s1.chainA, typ="l", ylab="Bfactor") 
+```
+
+
+This function below will return a plot of the proteins' Bfactors and their secondary structural elements in a graph.
+```{r}
+bFactPlot <- function(x, y){
+  #x is the protein of interest, y is the secondary structural element
+  plotb3(x, sse = y, typ = "l", ylab = "Bfactor")
+}
+
+bFactPlot(s1.b, s1.chainA)
+```
+
+
+
+

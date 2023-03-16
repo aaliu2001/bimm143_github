@@ -1,0 +1,245 @@
+---
+title: "Class 7: Machine Learning I"
+author: "Angela Liu"
+format: gfm
+---
+
+In this class, we will explore clustering and dimensionality reduction methods. 
+
+## K-means
+
+Make up some input data where we know what the answer should be.
+
+```{r}
+#will make random numbers drawn from normal distribution
+#rnorm(# outputs, mean, sd)
+tmp <- c(rnorm(30, -3), rnorm(30, +3))
+
+#reverse the order
+#rev(tmp)
+
+#get 2-D data: one column being tmp, the second being tmp with all the elements in the opposite order
+x <- cbind(tmp, rev(tmp))
+head(x)
+```
+
+Quick plot of x to see the two groups at -3, +3 and +3, -3
+```{r}
+plot(x)
+```
+
+Use the `kmeans` function setting k to 2 and nstart = 20.
+```{r}
+km <- kmeans(x, centers = 2, nstart = 20)
+km
+
+#clustering vector is the cluster assignments to each element
+```
+
+Inspect/print the results
+
+> Q: How many points are in each cluster?
+
+```{r}
+km$size
+```
+
+> Q: What component of your result object details
+  - cluster assignment/membership?
+  - cluster center?
+
+```{r}
+km$cluster
+```
+
+```{r}
+km$centers
+```
+
+> Q: Plot x colored by the kmeans cluster assignment and add cluster centers as blue points
+
+```{r}
+#color by cluster
+plot(x, col = km$cluster)
+points(km$centers, col = "blue", pch = 15)
+```
+
+```{r}
+c(100, 1)
+1:5 + c(100,1)
+```
+
+
+Play with kmeans and ask for different number of clusters
+```{r}
+km <- kmeans(x, centers = 4, nstart = 20)
+plot(x, col = km$cluster)
+points(km$centers, col = "blue", pch = 15, cex = 2)
+```
+
+# Hierarchical Clustering
+
+This is another very useful and widely employed clustering method which has the advantage over kmeans in that it can help reveal something of the true grouping in your data.
+
+hclus(d) --> it wants a distance; can take any distance unlike kmeans that can only take euclidean distances
+
+The `hclust()` function wants a distance matrix as input.
+```{r}
+d <- dist(x)
+hc <- hclust(d)
+hc
+```
+
+There is a plot method for hclust results:
+```{r}
+#shows two groupings
+plot(hc)
+#to cut the tree
+abline(h=10, col = "red")
+```
+
+
+To get my cluster membership vector I need to "cut" my tree to yield sub-trees or branches with all the members of a given cluster residing on the same cut branch. The function to do this is called `cutree()`.
+```{r}
+grps <- cutree(hc, h = 10)
+grps
+```
+
+```{r}
+plot(x, col=grps)
+points(km$centers, col = "blue", pch = 15, cex = 2)
+```
+
+```{r}
+plot(hc)
+```
+
+It is often helpful to use the `k=` argument to cutree rather than the `h=` height of cutting with `cutree()`. This will cut the tree to yield the number of clusters you want.
+
+```{r}
+#cut to yield four clusters
+cutree(hc, k=4)
+```
+
+# Principal Component Analysis (PCA)
+
+The base R function for PCA is called `prcomp()`.
+
+Importing the data:
+```{r}
+url <- "https://tinyurl.com/UK-foods"
+x <- read.csv(url)
+```
+
+>Q1. How many rows and columns are in your new data frame named x? What R functions could you use to answer this questions?
+
+`dim()` function can be used to find that there are 17 rows and 5 columns.
+
+```{r}
+dim(x)
+```
+
+```{r}
+head(x)
+```
+
+To make sure that the first column is not being counted in, let's remove it.
+```{r}
+rownames(x) <- x[,1]
+x <- x[,-1]
+head(x)
+```
+```{r}
+dim(x)
+```
+An alternative way to set the right row-names:
+```{r}
+x <- read.csv(url, row.names=1)
+head(x)
+```
+
+>Q2. Which approach to solving the ‘row-names problem’ mentioned above do you prefer and why? Is one approach more robust than another under certain circumstances?
+
+The second approach is preferred and more robust because it is more efficient and can be started at the row you want to start it at. If you run the first approach code more than once, it will start the row more to the right progressively. 
+
+
+Barplots are not very helpful:
+```{r}
+barplot(as.matrix(x), beside=T, col=rainbow(nrow(x)))
+```
+
+>Q3: Changing what optional argument in the above barplot() function results in the following plot?
+
+Changing the `beside=` argument to `FALSE` will result in a stacked bar graph.
+```{r}
+barplot(as.matrix(x), beside=F, col=rainbow(nrow(x)))
+```
+
+>Q5: Generating all pairwise plots may help somewhat. Can you make sense of the following code and resulting figure? What does it mean if a given point lies on the diagonal for a given plot?
+
+The following code shows a matrix of scatterplots of each country. 
+```{r}
+pairs(x, col=rainbow(10), pch=16)
+```
+The plots correlate with the x-axis and y-axis. For example, the second from top left graph shows England as the x-axis and Wale as the y-axis. If a point lies on a diagonal, it means the data (food consumption in this case) is similar for the two countries on the axes.
+
+>Q6. What is the main differences between N. Ireland and the other countries of the UK in terms of this data-set?
+
+The blue and orange dots are  not on the diagonals with either of the countries, so those points differ, most likely in fresh potatoes and fresh fruit (in conjunction with the chart reference). N. Ireland has higher food consumption in those aspects.
+
+
+The `prcomp()` function operates with observations as rows, and variables as columns. 
+```{r}
+# Use the prcomp() PCA function 
+#t() trnasposes data frame matrix
+pca <- prcomp( t(x) )
+summary(pca)
+```
+Cumulative proportion shows how much each PC captures of the total variants.
+
+>Q7. Complete the code below to generate a plot of PC1 vs PC2. The second line adds text labels over the data points.
+
+A "PCA plot" (aka "Score plot", PC1vsPC2 plot, etc.)
+```{r}
+pca$x
+```
+
+
+```{r}
+# Plot PC1 vs PC2
+plot(pca$x[,1], pca$x[,2], xlab="PC1", ylab="PC2", xlim=c(-270,500))
+text(pca$x[,1], pca$x[,2], colnames(x))
+```
+
+>Q8. Customize your plot so that the colors of the country names match the colors in our UK and Ireland map and table at start of this document.
+
+```{r}
+plot(pca$x[,1], pca$x[,2], xlab="PC1", ylab="PC2", xlim=c(-270,500))
+text(pca$x[,1], pca$x[,2], colnames(x), col = c("orange", "red", "blue", "green"))
+```
+
+
+```{r}
+v <- round( pca$sdev^2/sum(pca$sdev^2) * 100 )
+v
+```
+
+```{r}
+z <- summary(pca)
+z$importance
+```
+To summarize in a plot of variances w/respect to the PC number:
+```{r}
+barplot(v, xlab="Principal Component", ylab="Percent Variation")
+```
+
+## Loading Scores
+
+```{r}
+## Lets focus on PC1 as it accounts for > 90% of variance 
+par(mar=c(10, 3, 0.35, 0))
+barplot( pca$rotation[,1], las=2 )
+```
+The positive bars show that Ireland eat more fresh potatoes and soft drinks, while the negative bars reveal that the other countries eat a lot more fresh fruit and drink more alcoholic drinks.
+
+
