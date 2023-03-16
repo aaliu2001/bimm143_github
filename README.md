@@ -13,4 +13,8 @@ My classwork and mini projects from [BIMM 143](https://bioboot.github.io/bimm143
 - Class 11:
 - Class 12:
 - Class 13: [code](https://github.com/aaliu2001/bimm143_github/blob/main/class13miniproject/Untitled.qmd)
+- Class 14:
+- Class 15:
+- Class 16:
+- Class 17: [code](https://github.com/aaliu2001/bimm143_github/blob/main/class17/class17.md)
 
