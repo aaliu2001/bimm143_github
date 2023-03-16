@@ -1,0 +1,8 @@
+
+i-0698725e1672d0a38
+
+ssh -i "a5liu_bimm143wi23.pem" ubuntu@ec2-34-219-25-4.us-west-2.compute.amazonaws.com
+
+scp -r -i "a5liu_bimm143wi23.pem" ubuntu@ec2-34-219-25-4.us-west-2.compute.amazonaws.com:~/*_quant .
+
+
